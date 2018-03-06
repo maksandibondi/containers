@@ -4,6 +4,13 @@
 #include <typeinfo>     // typeid
 #include <iterator>
 
+// Predeclarations
+template <typename T>
+class mynode;
+
+template <typename T>
+class my_list;
+
 template <typename T>
 class myvector;
 
@@ -242,4 +249,114 @@ private:
 	size_t capacity;
 
 };
+
+
+
+// Iterators list
+template <typename T>
+class myListIterator {
+	friend mynode<T>;
+	friend my_list<T>;
+	mynode<T>* node;
+
+public:
+	myListIterator() {}
+
+	myListIterator(mynode<T>* x): node(x) {}
+
+	myListIterator(const myListIterator<T>& iter) : node(iter.node) {}
+
+	myListIterator<T> operator =(const myListIterator<T>& rhs) {
+		return myListIterator(rhs.node);
+	};
+
+	bool operator ==(const myListIterator<T>& rhs) const {
+		return (node == rhs.node);
+	};
+
+	bool operator !=(const myListIterator<T>& old) const {
+		return !(*this == old);
+	};
+
+	T& operator*() {
+		return node->_data;
+	}
+
+	T* operator->() {
+		return &(operator*);
+	}
+
+	myListIterator<T> operator+(int _i) {
+		int i = 0;
+		while (i < _i) {
+			node = node->_next;
+			i++;
+		}
+		return *this;
+	}
+
+	myListIterator<T> operator-(int _i) {
+		int i = 0;
+		while (i < _i) {
+			node = node->_prev;
+			i++;
+		}
+		return *this;
+	}
+
+	myListIterator<T> operator++() {
+		node = node->_next;
+		return *this;
+	}
+
+	myListIterator<T> operator++(int) {
+		myListIterator _tmp = *this;
+		node = node->_next;
+		return _tmp;
+	}
+
+	myListIterator<T> operator--() {
+		node = node->_prev;
+		return *this;
+	}
+
+	myListIterator<T> operator--(int) {
+		myListIterator _tmp = *this;
+		node = node->_prev;
+		return _tmp;
+	}
+};
+
+template <typename T>
+class myConstListIterator {
+	mynode<T>* node;
+	myConstListIterator() {}
+	myConstListIterator(mynode<T>* x) : node(x) {}
+	myConstListIterator(const myListIterator<T>& iter) : node(iter.node) {}
+	const T& operator*() {
+		return node->data;
+	}
+	const T* operator->() {
+		return &(operator*);
+	}
+	myConstListIterator<T> operator++() {
+		node = node->_next;
+		return *this;
+	}
+	myConstListIterator<T> operator++(int) {
+		myConstListIterator _tmp = *this;
+		node = node->_next;
+		return _tmp;
+	}
+	myConstListIterator<T> operator--() {
+		node = node->_prev;
+		return *this;
+	}
+	myConstListIterator<T> operator--(int) {
+		myConstListIterator _tmp = *this;
+		node = node->_prev;
+		return _tmp;
+	}
+};
+
 #endif

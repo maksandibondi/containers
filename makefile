@@ -17,9 +17,10 @@ TESTLIB += \
 	test/lib/libgtest.a
 
 SRC	+= \
+	iterator-traits.cpp\
 	myvector.cpp\
 	main.cpp\
-	allocator-traits.cpp
+	mylist.cpp
 
 BIN = bin
 
