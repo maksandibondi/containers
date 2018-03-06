@@ -1,6 +1,7 @@
 #include <iostream>
 #include "gtest/gtest.h"
 #include "myvector.h"
+#include <algorithm>
 
 class VectorTest : public::testing::Test{
 				protected:
@@ -92,4 +93,56 @@ TEST_F(VectorTest, should_insert_a_range_equal_to_100_200_in_the_second_position
 		_myvector.insert(_myvector.begin()+1,_myvector2.begin(), _myvector2.end());
 		ASSERT_EQ(_myvector[1],100);
 		ASSERT_EQ(_myvector[2],200);
+}
+
+TEST_F(VectorTest, should_erase_two_elements_from_second_position) {
+			myvector<int> _myvector(4);
+			_myvector[0] = 0;
+			_myvector[1] = 1;
+			_myvector[2] = 2;
+			_myvector[3] = 3;
+
+
+			_myvector.erase(_myvector.begin()+1,_myvector.begin()+2);
+			ASSERT_EQ(_myvector[0],0);
+			ASSERT_EQ(_myvector[1],3);
+			ASSERT_EQ(_myvector.size(),2);
+}
+
+TEST_F(VectorTest, should_clean_the_vector_and_set_size_to_zero) {
+			myvector<int> _myvector(4);
+			_myvector[0] = 0;
+			_myvector[1] = 1;
+			_myvector[2] = 2;
+			_myvector[3] = 3;
+
+
+			_myvector.clear();
+			ASSERT_EQ(_myvector.size(),0);
+}
+
+TEST_F(VectorTest, should_sort_the_vector_ascending) {
+			myvector<int> _myvector(4);
+			_myvector[0] = 3;
+			_myvector[1] = 2;
+			_myvector[2] = 1;
+			_myvector[3] = 0;
+
+
+			std::sort(_myvector.begin(), _myvector.end());
+			ASSERT_EQ(_myvector[0],0);
+			ASSERT_EQ(_myvector[3],3);
+}
+
+TEST_F(VectorTest, should_pop_back_one_element) {
+			myvector<int> _myvector(4);
+			_myvector[0] = 3;
+			_myvector[1] = 2;
+			_myvector[2] = 1;
+			_myvector[3] = 0;
+
+
+			_myvector.pop_back();
+			ASSERT_EQ(_myvector[2],1);
+			ASSERT_EQ(_myvector.size(),3);
 }
