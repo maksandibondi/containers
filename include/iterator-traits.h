@@ -1,103 +1,245 @@
 #ifndef _ITERATORTRAITS_
 #define _ITERATORTRAITS_
 
-//#include <myvector.h>
-//#include <iterator>     // std::iterator_traits
 #include <typeinfo>     // typeid
 #include <iterator>
 
+template <typename T>
+class myvector;
 
 template<typename T>
-class myForwardIterator: public std::iterator<std::forward_iterator_tag, T>{
+class myConstRandomAccessIterator;
+
+template<typename T>
+class myRandomAccessIterator : public std::iterator<std::random_access_iterator_tag, T> {
+	friend myvector<T>;
+	friend myConstRandomAccessIterator<T>;
 public:
-	myForwardIterator(T* ptr){
-		current = ptr;
+	myRandomAccessIterator() : start(), current(), capacity() {
 	}
-	myForwardIterator(T* ptr, size_t offset){
-			start = ptr;
-			current = ptr+offset;
-		}
-	myForwardIterator(const myForwardIterator &);
-	myForwardIterator &operator =(const myForwardIterator &);
-	bool operator ==(const myForwardIterator &) const;
-	bool operator !=(const myForwardIterator &old) const { return !(*this == old); };
-	myForwardIterator & operator ++(){
+
+	myRandomAccessIterator(T* ptr) {
+		this->current = ptr;
+	}
+
+	myRandomAccessIterator(T* ptr, T* start, size_t capacity) {
+		this->current = ptr;
+		this->start = start;
+		this->capacity = capacity;
+	}
+
+	myRandomAccessIterator(const myRandomAccessIterator &rhs) {
+		start = rhs.start;
+		current = rhs.current;
+		this->capacity = rhs.capacity;
+	};
+
+	myRandomAccessIterator operator =(const myRandomAccessIterator &rhs) {
+		return myRandomAccessIterator(rhs.current, rhs.start, rhs.capacity);
+	};
+
+	bool operator ==(const myRandomAccessIterator &rhs) const {
+		return (current == rhs.current && start == rhs.start && capacity == rhs.capacity);
+	};
+
+	bool operator !=(const myRandomAccessIterator &old) const {
+		return !(*this == old);
+	};
+
+	myRandomAccessIterator & operator ++() {
 		++current;
 		return *this;
 	}
-	myForwardIterator operator ++(int){
-		return myForwardIterator(++current);
+
+	myRandomAccessIterator operator ++(int) {
+		return myRandomAccessIterator(++current, start, capacity);
 	}
 
-	myForwardIterator & operator --(){
-			--current;
-			return *this;
-		}
-	T & operator *(){
+	myRandomAccessIterator & operator --() {
+		--current;
+		return *this;
+	}
+
+	myRandomAccessIterator operator --(int) {
+		return myRandomAccessIterator(--current, start, capacity);
+	}
+
+	myRandomAccessIterator operator+(ptrdiff_t n) const {
+		return myRandomAccessIterator(current + n, start, capacity);
+	}
+
+	myRandomAccessIterator operator-(ptrdiff_t n) const {
+		return myRandomAccessIterator(current - n, start, capacity);
+	}
+
+	ptrdiff_t operator- (const myRandomAccessIterator& rhs) const {
+		return (this->current - rhs.current);
+	}
+
+	myRandomAccessIterator operator-=(ptrdiff_t n) const {
+		current -= n;
+		return *this;
+	}
+
+	myRandomAccessIterator operator+=(ptrdiff_t n) const {
+		current -= n;
+		return *this;
+	}
+
+	bool operator< (const myRandomAccessIterator& rhs) const {
+		return ((this->current) < (rhs.current));
+	}
+
+	bool operator<= (const myRandomAccessIterator& rhs) const {
+		((this->current) <= (rhs.current));
+	}
+
+	bool operator> (const myRandomAccessIterator& rhs) const {
+		((this->current) > (rhs.current));
+	}
+
+	bool operator>= (const myRandomAccessIterator& rhs) const {
+		((this->current) >= (rhs.current));
+	}
+
+	T & operator *() {
 		return *current;
 	}
-	T * operator ->(){
+
+	T * operator ->() {
 		return current;
 	}
-	~myForwardIterator(){
-		delete start;
-		delete current;
-	}
 
-private :
-  T *start;   // The original starts
-  int length;  // The Buffer length
-  T  *current; // Current iterator position
+private:
+	T *start;   // The original starts
+	T  *current; // Current iterator position (iterator in fact)
+	size_t capacity;
 };
 
 template<typename T>
-class myRandomAccessIterator: public std::iterator<std::random_access_iterator_tag, T>{
+class myConstRandomAccessIterator : public std::iterator<std::random_access_iterator_tag, T> {
+	friend myvector<T>;
 public:
-	myRandomAccessIterator(T* ptr){
-		current = ptr;
+	myConstRandomAccessIterator() : start(), current(), capacity() {
 	}
-	/*myRandomAccessIterator(T* ptr, size_t offset){
-			start = ptr;
-			current = ptr+offset;
-		}*/
-	myRandomAccessIterator(const myRandomAccessIterator &);
-	myRandomAccessIterator &operator =(const myRandomAccessIterator &);
-	bool operator ==(const myRandomAccessIterator &) const;
-	bool operator !=(const myRandomAccessIterator &old) const { return !(*this == old); };
-	myRandomAccessIterator & operator ++(){
+
+	myConstRandomAccessIterator(const myRandomAccessIterator<T> &iter):
+		current(iter.current),
+		start(iter.start),
+		capacity(iter.capacity)
+	{
+
+	}
+
+	myConstRandomAccessIterator(T* ptr):
+		current(ptr),
+		start(),
+		capacity()
+	{
+	}
+
+	myConstRandomAccessIterator(T* ptr, T* start, size_t capacity):
+		current(ptr),
+		start(start),
+		capacity(capacity)
+	{
+	}
+
+	myConstRandomAccessIterator(const T* ptr, const T* start, size_t capacity) :
+		current(ptr),
+		start(start),
+		capacity(capacity)
+	{
+	}
+
+	myConstRandomAccessIterator(const myConstRandomAccessIterator &rhs):
+		start(rhs.start),
+		current(rhs.current),
+		capacity(rhs.capacity)
+	{
+	}
+
+	myConstRandomAccessIterator operator =(const myConstRandomAccessIterator &rhs) {
+		return myConstRandomAccessIterator(rhs.current, rhs.start, rhs.capacity);
+	};
+
+	bool operator ==(const myConstRandomAccessIterator &rhs) const {
+		return (current == rhs.current && start == rhs.start && capacity == rhs.capacity);
+	};
+
+	bool operator !=(const myConstRandomAccessIterator &old) const {
+		return !(*this == old);
+	};
+
+	myConstRandomAccessIterator & operator ++() {
 		++current;
 		return *this;
 	}
-	myRandomAccessIterator operator ++(int){
 
-		return myRandomAccessIterator(++current);
+	myConstRandomAccessIterator operator ++(int) {
+		return myConstRandomAccessIterator(++current, start, capacity);
 	}
-	myRandomAccessIterator & operator --(){
-				--current;
-				return *this;
-			}
-	myRandomAccessIterator operator+(long unsigned int __n) const{
-		return myRandomAccessIterator(current + __n);
-	}
-	myRandomAccessIterator operator-(long unsigned int __n) const{
-			return myRandomAccessIterator(current - __n);
-		}
 
-	T & operator *(){
+	myConstRandomAccessIterator & operator --() {
+		--current;
+		return *this;
+	}
+
+	myConstRandomAccessIterator operator --(int) {
+		return myConstRandomAccessIterator(--current, start, capacity);
+	}
+
+	myConstRandomAccessIterator operator+(ptrdiff_t n) const{
+		return myConstRandomAccessIterator(current + n, start, capacity);
+	}
+
+	myConstRandomAccessIterator operator-(ptrdiff_t n) const {
+		return myConstRandomAccessIterator(current - n, start, capacity);
+	}
+
+	ptrdiff_t operator- (const myConstRandomAccessIterator& rhs) const {
+		return (this->current - rhs.current);
+	}
+
+	myConstRandomAccessIterator operator-=(ptrdiff_t n) const {
+		current -= n;
+		return *this;
+	}
+
+	myConstRandomAccessIterator operator+=(ptrdiff_t n) const {
+		current -= n;
+		return *this;
+	}
+
+	bool operator< (const myConstRandomAccessIterator& rhs) const {
+		return ((this->current) < (rhs.current));
+	}
+
+	bool operator<= (const myConstRandomAccessIterator& rhs) const {
+		((this->current) <= (rhs.current));
+	}
+
+	bool operator> (const myConstRandomAccessIterator& rhs) const {
+		((this->current) > (rhs.current));
+	}
+
+	bool operator>= (const myConstRandomAccessIterator& rhs) const {
+		((this->current) >= (rhs.current));
+	}
+
+
+	const T & operator *() {
 		return *current;
 	}
-	T * operator ->(){
+
+	const T * operator ->() {
 		return current;
 	}
 
-	~myRandomAccessIterator(){
-		delete start;
-		delete current;
-	}
+private:
+	const T *start;   // The original starts
+	const T  *current; // Current iterator position (iterator in fact)
+	size_t capacity;
 
-private :
-  T *start;   // The original starts
-  T  *current; // Current iterator position
 };
-
 #endif
